@@ -4,7 +4,7 @@ body {
     margin: 0;
     padding: 0;
     width: 100%;
-    min-width: 500px;
+    min-width: 600px;
     border: none;
     background-color: #f1f1f1;
     font-family: 'Raleway', sans-serif;
@@ -134,8 +134,38 @@ input[type="checkbox"]:disabled {
 	font-weight: 400;
 }
 
+.div-logins {
+    margin-bottom: 2em;
+}
+
 .div-logins .btn {
     text-align: left;
+}
+
+.div-logins span.ambiente {
+    margin: 1em auto 0.2em;
+	display: block;
+	font-size: 1.2em;
+	cursor: pointer;
+}
+
+.div-logins span.ambiente::before {
+	content: '\0020';
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	background-image: url('../images/folder32.png');
+	background-clip: border-box;
+	background-position: 50%;
+	background-origin: border-box;
+	background-repeat: no-repeat;
+	background-size: contain;
+	vertical-align: middle;
+	margin-right: 6px;
+}
+
+.div-logins .grupo {
+    padding: 0 18px;
 }
 
 .fader {

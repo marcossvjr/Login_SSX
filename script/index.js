@@ -7,14 +7,14 @@ String.prototype.removerCaracteresADireita = function (caractere) {
         txt = txt.slice(0, -1);
     }
     return new String(txt);
-}
+};
 String.prototype.removerCaracteresAEsquerda = function (caractere) {
 	var txt = this;
     while(txt.slice(0, 1) == caractere) {
         txt = txt.slice(1);
     }
     return new String(txt);
-}
+};
 
 //Patterns
 var oPatternCredencial = function (id, login, senha, urlAmbienteIndex) {
@@ -65,6 +65,8 @@ var ssxLogin = {
     seletor_divCbxCbxLogins: '.div-cbx-cbx-logins',
     seletor_cbxCbxLogins: '.cbx-cbx-logins',
     seletor_lslogins: '#lslogins',
+    seletor_divGrupoLogin: '.grupo',
+    seletor_spanGrupoLogin: 'span.ambiente',
 
     //INICIALIZAÇÃO
     init: (e) => {
@@ -83,6 +85,7 @@ var ssxLogin = {
             .on('click', ssxLogin.seletor_btnInserirCredencial, ssxLogin.handleClickBtnInserirCredencial)
             .on('click', ssxLogin.seletor_btnExcluirLogins, ssxLogin.handleClickBtnExcluirLogins)
             .on('click', ssxLogin.seletor_btnEditarLogins, ssxLogin.handleClickBtnEditarLogins)
+            .on('click', ssxLogin.seletor_spanGrupoLogin, ssxLogin.handleClickSpanGrupoLogin)
             .on('click', ssxLogin.seletor_btnLogin, ssxLogin.handleClickBtnLogin)
             .on('change', ssxLogin.seletor_cbxCbxLogins, ssxLogin.handleChangeCbxCbxLogins)
             .on('change', ssxLogin.seletor_cbxLogin, ssxLogin.handleChangeCbxLogin)
@@ -148,7 +151,9 @@ var ssxLogin = {
                     jqFormLogin.find(ssxLogin.seletor_urlAmbienteIndex).val(oCredencial.urlAmbienteIndex);
                     jqFormLogin.find(ssxLogin.seletor_hiddenCredencialId).val(oCredencial.id);
 
-                    jqFormLogin.show();
+                    jqFormLogin.show(() => {
+                        ssxLogin.scrollToBottom();
+                    });
                 }
             }
         }
@@ -271,9 +276,18 @@ var ssxLogin = {
         e.target.reset();
         ssxLogin.jqPage.find(ssxLogin.seletor_formCredencial).hide();
     },
+    handleClickSpanGrupoLogin: (e) => {
+        var jqSpanGrupoLogin = $(e.currentTarget);
+        var targetdivclass = jqSpanGrupoLogin.prop('targetdivclass');
+        var jqDivGrupoLogin = ssxLogin.jqPage.find(`${ssxLogin.seletor_divGrupoLogin}.${targetdivclass}`);
+
+        if (jqDivGrupoLogin.length) {
+            jqDivGrupoLogin.slideToggle();
+        }
+    },
 
     toggleInserirCredencial: () => {
-        ssxLogin.jqPage.find(ssxLogin.seletor_formCredencial).toggle();
+        ssxLogin.jqPage.find(ssxLogin.seletor_formCredencial).slideToggle();
         var btnInserirCredencial = ssxLogin.jqPage.find(ssxLogin.seletor_btnInserirCredencial);
 
         btnInserirCredencial.toggleClass('ativo');
@@ -281,13 +295,14 @@ var ssxLogin = {
         if (btnInserirCredencial.hasClass('ativo')) {
             btnInserirCredencial.text('Cancelar');
             ssxLogin.jqPage.find(ssxLogin.seletor_hiddenCredencialId).val('');
+            ssxLogin.scrollToBottom();
         } else {
             btnInserirCredencial.text('Inserir credencial');
         }
 
         ssxLogin.handleChangeCbxLogin();
     },
-    getCredencialLocalStorage: (credencialId) => {
+    getCredencialLocalStorage: (credencialId, orderBy) => {
         var txtCredenciais = localStorage.getItem(ssxLogin.KEY_LS_SSX_CREDENCIAIS);
         var oCredenciais = [];
 
@@ -299,12 +314,22 @@ var ssxLogin = {
             }
 
             if (Array.isArray(oCredenciais) && oCredenciais.length) {
+                oCredenciais.sort((a, b) => {
+                    //return b[orderBy || 'login'].localeCompare(a[orderBy || 'login']);
+                    //return (a.login > b.login) ? -1 : ((a.login < b.login) ? 1 : 0);
+                    if (a.login < b.login)
+                        return (a.urlAmbienteIndex > b.urlAmbienteIndex) ? 2 : 1;
+                    if (a.login > b.login)
+                        return (a.urlAmbienteIndex > b.urlAmbienteIndex) ? -2 : -1;
+                    return 0;
+                });
+
                 if (credencialId) {
-                    oCredenciais = oCredenciais.filter(function(i) {
+                    oCredenciais = oCredenciais.filter((i) => {
                         return i.id == credencialId;
                     });
 
-                    // oCredenciais = $.grep(oCredenciais, function(i) {
+                    // oCredenciais = $.grep(oCredenciais, (i) => {
                     //     return i.id == credencialId;
                     // });
 
@@ -334,7 +359,7 @@ var ssxLogin = {
         if (Array.isArray(oCredenciais)) {
 
             if (oCredencial instanceof oPatternCredencial) {
-                oCredenciais.map(function(obj, i) {
+                oCredenciais.map((obj, i) => {
                     if (obj.id === oCredencial.id) {
                         oCredenciais[i].login = oCredencial.login;
                         oCredenciais[i].senha = oCredencial.senha;
@@ -348,7 +373,7 @@ var ssxLogin = {
     },
     excluirCredencialLocalStorage: (credencialId) => {
         var oCredenciais = ssxLogin.getCredencialLocalStorage();
-        oCredenciais = oCredenciais.filter(function(i) {
+        oCredenciais = oCredenciais.filter((i) => {
             return i.id != credencialId;
         });
 
@@ -364,7 +389,7 @@ var ssxLogin = {
             var jqDivLogins = ssxLogin.jqPage.find(ssxLogin.seletor_divLogins);
             var jqDivLoginPattern = jqDivLogins.find(ssxLogin.seletor_divLoginPattern);
 
-            jqDivLogins.children('div').not(ssxLogin.seletor_divLoginPattern).remove();
+            jqDivLogins.children('div,span').not(ssxLogin.seletor_divLoginPattern).remove();
             ssxLogin.jqPage.find(ssxLogin.seletor_divCbxCbxLogins).show();
 
             if (jqDivLoginPattern.length) {
@@ -373,8 +398,7 @@ var ssxLogin = {
 
                     if (credencial.login && credencial.login.length &&
                         credencial.senha && credencial.senha.length &&
-                        credencial.urlAmbienteIndex && credencial.urlAmbienteIndex.length
-                    ) {
+                        credencial.urlAmbienteIndex && credencial.urlAmbienteIndex.length) {
                         ssxLogin.criarBtnLogin(jqDivLoginPattern, credencial, jqDivLogins);
                     }
                 });
@@ -421,20 +445,33 @@ var ssxLogin = {
 
         var jqBtnLogin = jqDivLogin.find(ssxLogin.seletor_btnLoginPattern);
         var jqCbxLogin = jqDivLogin.find(ssxLogin.seletor_cbxLoginPattern);
-        
+        var jqDivLogins = ssxLogin.jqPage.find(ssxLogin.seletor_divLogins);
+        var urlAmbienteIndexClear = credencial.urlAmbienteIndex.replace('http://', '').replace('www', '').removerCaracteresAEsquerda('.');
+        var urlAmbienteIndexHash = btoa(urlAmbienteIndexClear).removerCaracteresADireita('=');
+        var jqDivGrupo = jqDivLogins.find(`.grupo.grupo-${urlAmbienteIndexHash}`);
+
         jqDivLogin.removeClass('div-login-pattern');
         jqBtnLogin.removeClass('btn-login-pattern');
         jqCbxLogin.removeClass('cbx-login-pattern');
 
+        if (jqDivGrupo.length) { //SE JÁ EXISTE UMA DIV PARA ESSE GRUPO
+        } else {
+            jqDivGrupo =  $(`<div class="grupo grupo-${urlAmbienteIndexHash}"></div>`);
+            var jqSpanGrupoLogin = $(`<span class="ambiente">${urlAmbienteIndexClear}</span>`);
+            jqSpanGrupoLogin.prop('targetdivclass', `grupo-${urlAmbienteIndexHash}`);
+            jqDivLogins.append(jqSpanGrupoLogin);
+            jqDivLogins.append(jqDivGrupo);
+        }
+
         jqBtnLogin.prop('credencialid', credencial.id);
         jqBtnLogin.prop('urlambienteindex', credencial.urlAmbienteIndex);
-        jqBtnLogin.html(`${credencial.login} em <span class="span-url">${credencial.urlAmbienteIndex.replace('http://', '').replace('www', '').removerCaracteresAEsquerda('.').toString()}</span>`)
+        jqBtnLogin.html(`${credencial.login} em <span class="span-url">${urlAmbienteIndexClear}</span>`)
         jqCbxLogin.prop('credencialid', credencial.id);
 
-        jqDivLogin.append(jqCbxLogin).append(jqBtnLogin).show();
+        jqDivGrupo.append(jqDivLogin.append(jqCbxLogin).append(jqBtnLogin).show()).hide();
     },
     login: (action, method, dados, urlIndex, urlHome) => {
-        chrome.tabs.getSelected(null, function(tab) {
+        chrome.tabs.getSelected(null, (tab) => {
             $.ajax({
                 url: action,
                 method: method,
@@ -476,7 +513,7 @@ var ssxLogin = {
                     chrome.tabs.create({
                         url: urlHome,
                         active: true
-                    }, function(tab){
+                    }, (tab) => {
                         console.log(tab);
                     });
                 }
@@ -488,11 +525,14 @@ var ssxLogin = {
             });
         });
     },
+    scrollToBottom: (duracao) => {
+        $('html, body').animate({scrollTop: window.outerHeight}, duracao);
+    },
     animarReticenciasLoader: (intervalo) => {
         var spc = '   ';
         var jqLoaderReticencias = ssxLogin.jqPage.find('.fader .loader .reticencias'), loadingVal;
         if (jqLoaderReticencias.length) {
-            return setInterval(function (){
+            return setInterval(() => {
                 loadingVal = jqLoaderReticencias.text().trim();
                 if (loadingVal.length == 3)
                     loadingVal = spc;
