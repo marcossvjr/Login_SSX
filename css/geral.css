@@ -4,14 +4,14 @@ body {
     margin: 0;
     padding: 0;
     width: 100%;
-    min-width: 600px;
+    min-width: 500px;
     border: none;
     background-color: #f1f1f1;
     font-family: 'Raleway', sans-serif;
     background-image: url(../images/bg.png);
-	background-position: 50% 50%;
-	background-size: cover;
-	background-repeat: no-repeat;
+    background-position: 50%;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 .acoes {
@@ -65,14 +65,14 @@ body {
 
 .btn {
     padding: 8px 10px;
-	width: 100%;
-	white-space: nowrap;
-	margin: 5px 0px;
-	display: block;
-	outline: none;
+    width: 100%;
+    white-space: nowrap;
+    margin: 3px 0px;
+    display: block;
+    outline: none;
     background-color: #9E9E9E;
-	color: #fff;
-	border-radius: 4px;
+    color: #fff;
+    border-radius: 4px;
     border: 1px solid #232186;
     transition: opacity 0.4s;
     cursor: pointer;
@@ -143,16 +143,16 @@ input[type="checkbox"]:disabled {
 }
 
 .div-logins span.ambiente {
-    margin: 1em auto 0.2em;
-	display: block;
-	font-size: 1.2em;
-	cursor: pointer;
+    margin: 0.6em auto 0.2em;
+    display: block;
+    font-size: 1.2em;
+    cursor: pointer;
 }
 
 .div-logins span.ambiente::before {
 	content: '\0020';
-	width: 16px;
-	height: 16px;
+	width: 20px;
+	height: 20px;
 	display: inline-block;
 	background-image: url('../images/folder32.png');
 	background-clip: border-box;
@@ -223,7 +223,7 @@ input[type="checkbox"]:disabled {
 
 .div-login button {
     box-sizing: border-box;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.8px;
 }
 
 .div-login button .span-url {

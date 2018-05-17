@@ -15,6 +15,14 @@ String.prototype.removerCaracteresAEsquerda = function (caractere) {
     }
     return new String(txt);
 };
+String.prototype.builder = function() {
+	var txt = this;
+	for(var index = 0; index < arguments.length; index++){
+		if (typeof(arguments[index]) === 'string')
+			txt = txt.replace(new RegExp(`\\{${index}\\}`, 'g'), arguments[index]);
+    }
+    return txt;
+};
 
 //Patterns
 var oPatternCredencial = function (id, login, senha, urlAmbienteIndex) {
@@ -446,9 +454,12 @@ var ssxLogin = {
         var jqBtnLogin = jqDivLogin.find(ssxLogin.seletor_btnLoginPattern);
         var jqCbxLogin = jqDivLogin.find(ssxLogin.seletor_cbxLoginPattern);
         var jqDivLogins = ssxLogin.jqPage.find(ssxLogin.seletor_divLogins);
-        var urlAmbienteIndexClear = credencial.urlAmbienteIndex.replace('http://', '').replace('www', '').removerCaracteresAEsquerda('.');
+        var urlAmbienteIndexClear = credencial.urlAmbienteIndex.replace('http://', '').replace('www', '').removerCaracteresAEsquerda('.').toString();
         var urlAmbienteIndexHash = btoa(urlAmbienteIndexClear).removerCaracteresADireita('=');
         var jqDivGrupo = jqDivLogins.find(`.grupo.grupo-${urlAmbienteIndexHash}`);
+        //var btnTemplateHtml = `{0} em <span class="span-url">{1}</span>`;
+        var btnTemplateHtml = `{0}`;
+        var btnTemplateTitle = `Logar-se como {0} em {1}`;
 
         jqDivLogin.removeClass('div-login-pattern');
         jqBtnLogin.removeClass('btn-login-pattern');
@@ -465,8 +476,9 @@ var ssxLogin = {
 
         jqBtnLogin.prop('credencialid', credencial.id);
         jqBtnLogin.prop('urlambienteindex', credencial.urlAmbienteIndex);
-        jqBtnLogin.html(`${credencial.login} em <span class="span-url">${urlAmbienteIndexClear}</span>`)
+        jqBtnLogin.html(btnTemplateHtml.builder(credencial.login, urlAmbienteIndexClear));
         jqCbxLogin.prop('credencialid', credencial.id);
+        jqBtnLogin.prop('title', btnTemplateTitle.builder(credencial.login, urlAmbienteIndexClear));
 
         jqDivGrupo.append(jqDivLogin.append(jqCbxLogin).append(jqBtnLogin).show()).hide();
     },
